@@ -3,6 +3,7 @@ package main
 import (
     "fmt"
     "sync"
+    "time"
     "math"
     "math/rand"
 )
@@ -85,6 +86,10 @@ func main() {
                 // new_covariance := (old_covariance * n + (score_x - new_mean_x) * (score_y - old_mean_y)) / n  // Pébay
                 // new_correlation := new_covariance / (new_sd_y * new_sd_x)
             }
+
+            // here's where things go haywire with the concurrency
+            duration := time.Duration(rand.Intn(1000)) * time.Millisecond  // some fraction of a second
+            time.Sleep(duration)
 
             // update/create vital stats for term
             leader_board[term] = VitalStats{

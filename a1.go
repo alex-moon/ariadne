@@ -89,7 +89,7 @@ func main() {
 
             // here's where things go haywire with the concurrency
             duration := time.Duration(rand.Intn(1000)) * time.Millisecond  // some fraction of a second
-            time.Sleep(duration)
+            time.Sleep(duration)  // during which time other reads/writes happen
 
             // update/create vital stats for term
             leader_board[term] = VitalStats{
@@ -129,6 +129,7 @@ func main() {
 }
 
 func TermScores(c chan TermScore, n int, words []string) {
+    // generates a bunch of pseudo-random data
     for i := 0; i < n; i++ {
         word := words[rand.Intn(len(words))]
         score := rand.Float64()

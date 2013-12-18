@@ -68,25 +68,18 @@ func main() {
 
                 if current_exists {
                     if current == id {
-                        fmt.Printf("I am %d - I am NOW processing %s\n", id, term)
                         break  // "I am now processing this term!"
                     }  // "Someone else is currently processing this term - I will try again later"
-                    fmt.Printf("I am %d - someone else is processing %s - I will try again later\n", id, term)
                 } else {  // "No-one is currently processing this term!"
-                    fmt.Printf("I am %d - no-one is processing %s!\n", id, term)
                     next, next_exists := next_to_process[term]
                     if next_exists {  // "Someone is next to process this term, so..."
-                        fmt.Printf("I am %d - next to process %s is %d\n", id, term, next)
                         processing[term] = next  // "...whoever it is is now processing this term."
                         if next != id {  // "If it's not me..."
                             next_to_process[term] = id  // "... then I am next to process this term!"
-                            fmt.Printf("I am %d - next to process %s is now ME!\n", id, term)
                         } else {  // "I am now processing this term!"
-                            fmt.Printf("I am %d and I am no longer next to process %s\n", id, term)
                             delete(next_to_process, term)  // "Someone else is next to process this term."
                         }
                     } else {  // "No-one is next to process this term!"
-                        fmt.Printf("I am %d - no-one is next to process %s so I'll do it!\n", id, term)
                         next_to_process[term] = id  // "I am next to process this term!"
                     }
                 }

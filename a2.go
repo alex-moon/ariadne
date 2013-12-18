@@ -72,7 +72,7 @@ func main() {
 
                 // STEP 1: the count
                 // aka k
-                old_n :=  term_stats.N
+                old_n := term_stats.N
                 new_n = old_n + 1
 
                 // STEP 2: the mean
@@ -94,7 +94,7 @@ func main() {
             }
 
             // here's where things go haywire with the concurrency
-            duration := time.Duration(rand.Intn(1000)) * time.Millisecond  // some fraction of a second
+            duration := time.Duration(rand.Intn(100)) * time.Millisecond  // some fraction of a centisecond
             time.Sleep(duration)  // during which time other reads/writes happen
 
             // update/create vital stats for term
@@ -146,3 +146,4 @@ func TermScores(c chan TermScore, n int, words []string) {
 
     c <- TermScore{"", 0.0}
 }
+

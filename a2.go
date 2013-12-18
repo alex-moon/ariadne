@@ -20,6 +20,9 @@ type VitalStats struct {
 }
 
 func main() {
+    // first let's seed the random number generator properly
+    rand.Seed( time.Now().UTC().UnixNano())
+
     var scores_to_generate int = 100
     var words []string = []string{
         "magniloquent",
@@ -65,12 +68,13 @@ func main() {
                 }
                 if _, exists := processing[term]; !exists {
                     if next_to_process[term] == id {
-                        delete(next_to_process, term)
-                        processing[term] = id
+                        delete(next_to_process, term)  // relinquish next-to-process
+                        processing[term] = id  // "I am processing!"
                         break
                     }
                 }
-                // random sleep just to keep things cool
+
+                // random sleep just to keep things from overheating
                 duration := time.Duration(rand.Intn(100)) * time.Millisecond  // some fraction of a centisecond
                 time.Sleep(duration)  // during which time other reads/writes happen
             }

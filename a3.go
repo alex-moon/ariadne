@@ -20,6 +20,9 @@ type VitalStats struct {
 }
 
 func main() {
+    // first let's seed the random number generator properly
+    rand.Seed( time.Now().UTC().UnixNano())
+
     var scores_to_generate int = 100
     var words []string = []string{
         "magniloquent",

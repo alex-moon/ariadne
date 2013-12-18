@@ -31,6 +31,7 @@ func main() {
 
     var _audit map [string] []float64 = make(map [string] []float64)
     var leader_board map [string] VitalStats = make(map [string] VitalStats)
+    var mutexes map [string] *sync.Mutex = make(map [string] *sync.Mutex)
 
     var c chan TermScore = make(chan TermScore)
     go TermScores(c, scores_to_generate, words)
@@ -51,9 +52,16 @@ func main() {
         }
 
         // then handle the online formulae (asynchronously)
+        if _, exists := mutexes[term]; !exists {
+            mutexes[term] = new(sync.Mutex)
+        }
+
         wg.Add(1)
         go func() {
             defer wg.Done()
+            var mutex *sync.Mutex = mutexes[term]
+
+            mutex.Lock()
 
             var new_n int = 1
             var new_mean float64 = score
@@ -95,6 +103,8 @@ func main() {
                 new_mean,
                 new_sd,
             }
+
+            mutex.Unlock()
         } ()
     }
 

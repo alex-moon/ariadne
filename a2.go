@@ -32,6 +32,10 @@ func main() {
     var _audit map [string] []float64 = make(map [string] []float64)
     var leader_board map [string] VitalStats = make(map [string] VitalStats)
 
+    var processing map [string] int = make(map [string] int)
+    var next_to_process map [string] int = make(map [string] int)
+    var i int = 0
+
     var c chan TermScore = make(chan TermScore)
     go TermScores(c, scores_to_generate, words)
 
@@ -52,8 +56,24 @@ func main() {
 
         // then handle the online formulae (asynchronously)
         wg.Add(1)
-        go func() {
+        go func(id int) {
             defer wg.Done()
+
+            for {
+                if _, exists := next_to_process[term]; !exists {
+                    next_to_process[term] = id  // "I am next to process!"
+                }
+                if _, exists := processing[term]; !exists {
+                    if next_to_process[term] == id {
+                        delete(next_to_process, term)
+                        processing[term] = id
+                        break
+                    }
+                }
+                // random sleep just to keep things cool
+                duration := time.Duration(rand.Intn(100)) * time.Millisecond  // some fraction of a centisecond
+                time.Sleep(duration)  // during which time other reads/writes happen
+            }
 
             var new_n int = 1
             var new_mean float64 = score
@@ -95,7 +115,11 @@ func main() {
                 new_mean,
                 new_sd,
             }
-        } ()
+
+            // "I am done processing!""
+            delete(processing, term)
+        } (i)
+        i++
     }
 
     wg.Wait()

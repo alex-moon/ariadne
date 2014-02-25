@@ -36,8 +36,6 @@ func main() {
     var leader_board map [string] VitalStats = make(map [string] VitalStats)
 
     var processing map [string] int = make(map [string] int)
-    var next_to_process map [string] int = make(map [string] int)
-    var i int = 0
 
     var c chan TermScore = make(chan TermScore)
     go TermScores(c, scores_to_generate, words)
@@ -59,34 +57,19 @@ func main() {
 
         // then handle the online formulae (asynchronously)
         wg.Add(1)
-        go func(id int) {
+        go func() {
             defer wg.Done()
 
             // Preprotocol
             for {
-                current, current_exists := processing[term]
+                processing[term] ++  // I am waiting
+                if processing[term] == 1 { break }  // I am the only one waiting, so GO!
 
-                if current_exists {
-                    if current == id {
-                        break  // "I am now processing this term!"
-                    }  // "Someone else is currently processing this term - I will try again later"
-                } else {  // "No-one is currently processing this term!"
-                    next, next_exists := next_to_process[term]
-                    if next_exists {  // "Someone is next to process this term, so..."
-                        processing[term] = next  // "...whoever it is is now processing this term."
-                        if next != id {  // "If it's not me..."
-                            next_to_process[term] = id  // "... then I am next to process this term!"
-                        } else {  // "I am now processing this term!"
-                            delete(next_to_process, term)  // "Someone else is next to process this term."
-                        }
-                    } else {  // "No-one is next to process this term!"
-                        next_to_process[term] = id  // "I am next to process this term!"
-                    }
-                }
-
-                // random sleep to keep things from overheating
+                // random sleep to keep things from overheating - uncomment to witness 100% CPU usage
                 duration := time.Duration(rand.Intn(100)) * time.Millisecond  // some fraction of a centisecond
                 time.Sleep(duration)  // during which time other reads/writes happen
+
+                processing[term] --
             }
 
             var new_n int = 1
@@ -130,10 +113,9 @@ func main() {
                 new_sd,
             }
 
-            // "I am done processing!""
-            delete(processing, term)
-        } (i)
-        i++
+            // Postprotocol
+            processing[term] --
+        } ()
     }
 
     wg.Wait()

@@ -65,7 +65,7 @@ func main() {
                 processing[term] ++  // I am waiting
                 if processing[term] == 1 { break }  // I am the only one waiting, so GO!
 
-                // random sleep to keep things from overheating - uncomment to witness 100% CPU usage
+                // random sleep to keep things from overheating - comment to witness 100% CPU usage
                 duration := time.Duration(rand.Intn(100)) * time.Millisecond  // some fraction of a centisecond
                 time.Sleep(duration)  // during which time other reads/writes happen
 
